@@ -1,0 +1,24 @@
+{
+  "name": "thailand-party-list-calculator",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "description": "ระบบคำนวณคะแบบเสียงส.ส.แบบบัญชีรายชื่อตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2561",
+  "repository": "git@github.com:Cleverse/thailand-party-list-calculator.git",
+  "author": "Panjamapong Sermsawatsri <panjamapong_s@cleverse.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/lodash": "^4.14.123",
+    "@types/mocha": "^5.2.6",
+    "mocha": "^6.0.2",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.3333",
+    "typings": "^2.1.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
+}
