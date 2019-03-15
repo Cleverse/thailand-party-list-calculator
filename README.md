@@ -1,4 +1,4 @@
-# [WIP] Thailand Party List Calculator
+# Thailand Party List Calculator
 
 According to Constitution of Kingdom of Thailand 2017, the election system adopts Mixed Members Appointment system (MMA) to make sure that the people's vote percentage reflects the percentage of each party in House of Representatives.
 
