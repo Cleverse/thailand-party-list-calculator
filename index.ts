@@ -14,22 +14,10 @@ interface IParty {
   isViableForPartyList(): Boolean
 }
 
-interface ICalculatePartyListInput {
-  parties: IParty[]
-  voterCount: number
-  voteNoCount: number
-  invalidCount: number
-}
-
 export const PARTY_LIST_LIMIT = 150
 export const REP_LIMIT = 500
-export const calculatePartyList = ({
-  parties,
-  voterCount,
-  voteNoCount,
-  invalidCount,
-}: ICalculatePartyListInput): IParty[] => {
-  const maxPossibleScores = voterCount - voteNoCount - invalidCount
+export const calculatePartyList = (parties: IParty[]): IParty[] => {
+  const ids = _.map(parties, p => p.id)
   const allValidScores = _.reduce(
     parties,
     (result, party) => {
@@ -37,7 +25,6 @@ export const calculatePartyList = ({
     },
     0
   )
-  if (allValidScores !== maxPossibleScores) throw new Error('what? really?')
   const partiesForCalc = _.map(
     parties,
     p =>
@@ -49,9 +36,9 @@ export const calculatePartyList = ({
       })
   )
 
-  const bMaxPossibleScores = new BigNumber(maxPossibleScores)
+  const bAllValidScores = new BigNumber(allValidScores)
   const bREP_LIMIT = new BigNumber(REP_LIMIT)
-  const score4Rep = bMaxPossibleScores.dividedBy(bREP_LIMIT)
+  const score4Rep = bAllValidScores.dividedBy(bREP_LIMIT)
 
   let remainingPartyListSeat = PARTY_LIST_LIMIT
   let totalPartyListMember = 0
@@ -103,24 +90,35 @@ export const calculatePartyList = ({
     pParties.sort((a, b) => {
       const aRemainder = a.getRepCeilingRemainder()
       const bRemainder = b.getRepCeilingRemainder()
-      return aRemainder.isLessThan(bRemainder) ? 1 : -1
+      const aRepCeiling = a.getRepCeilingInt().toNumber()
+      const bRepCeiling = b.getRepCeilingInt().toNumber()
+      const aTempValue = a.voteCount / aRepCeiling
+      const bTempValue = b.voteCount / bRepCeiling
+      return aRemainder.isGreaterThan(bRemainder)
+        ? -1
+        : aRemainder.isLessThan(bRemainder)
+        ? 1
+        : aTempValue > bTempValue
+        ? -1
+        : 1
     })
     let index = 0
     let viableParties = pParties
     while (remainingPartyListSeat > 0) {
-      viableParties = pParties.filter(
+      viableParties = viableParties.filter(
         p =>
           p.isViableForPartyList() &&
           p.partyListCandidateCount > p.partyListMemberCount
       )
       const viablePartiesIndex = index % viableParties.length
-      const p = viableParties[viablePartiesIndex]
-      p.partyListMemberCount += 1
+      const viableParty = viableParties[viablePartiesIndex]
+      viableParty.partyListMemberCount += 1
       index += 1
       totalPartyListMember += 1
       remainingPartyListSeat -= 1
     }
   }
+  pParties = _.map(ids, id => _.find(pParties, p => p.id === id) as Party)
 
   return pParties
 }
