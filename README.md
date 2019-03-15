@@ -29,5 +29,5 @@ const parties = calculatePartyList([
   }
 ])
 
-// parties[0].partyListMember
+// parties[0].partyListMemberCount
 ```
