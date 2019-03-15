@@ -4,21 +4,27 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "mocha -r ts-node/register --recursive \"**/*.spec.ts\"",
+    "test:watch": "mocha -r ts-node/register --recursive \"**/*.spec.ts\" --watch-extensions ts --watch"
   },
   "description": "ระบบคำนวณคะแบบเสียงส.ส.แบบบัญชีรายชื่อตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2561",
   "repository": "git@github.com:Cleverse/thailand-party-list-calculator.git",
   "author": "Panjamapong Sermsawatsri <panjamapong_s@cleverse.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/assert": "^1.4.2",
     "@types/lodash": "^4.14.123",
     "@types/mocha": "^5.2.6",
+    "assert": "^1.4.1",
     "mocha": "^6.0.2",
+    "ts-node": "^8.0.3",
     "tslint": "^5.14.0",
     "typescript": "^3.3.3333",
     "typings": "^2.1.1"
   },
   "dependencies": {
+    "bignumber.js": "^8.1.1",
     "lodash": "^4.17.11"
   }
 }
