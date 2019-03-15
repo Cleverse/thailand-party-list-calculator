@@ -10,8 +10,8 @@ This is not the official software. We do not hold any responsibility for any mis
 ## Usage
 
 ```javascript
-const parties = calculatePartyList({
-  parties: [{
+const parties = calculatePartyList([
+  {
     id: "1", // Unique ID
     electedMemberCount: 100, // Number of constituency candates of the party
     voteCount: 1000, // Total number of vote of the party
@@ -19,11 +19,8 @@ const parties = calculatePartyList({
   },
   {
     ...
-  }],
-  voterCount: 1000, // Total ballots of the election
-  voteNoCount: 0, // Number of NOTA (Non of the above) ballots
-  invalidCount: 0 // Number of invalid ballots
-})
+  }
+])
 
 // parties[0].partyListMember
 ```

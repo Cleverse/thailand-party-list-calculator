@@ -37,90 +37,47 @@ const partyF = new Party({
   voteCount: 1000,
   partyListCandidateCount: 150,
 })
+const partyG = new Party({
+  id: '6',
+  electedMemberCount: 175,
+  voteCount: 1000,
+  partyListCandidateCount: 150,
+})
+
 describe('Thailand Election Party List Calculation', () => {
   it('should pass monopoly case', () => {
-    const parties = calculatePartyList({
-      parties: [partyA],
-      voterCount: 1000,
-      voteNoCount: 0,
-      invalidCount: 0,
-    })
+    const parties = calculatePartyList([partyA])
     assert.equal(parties.length, 1)
     assert.equal(parties[0].partyListMemberCount, 150)
   })
   it('should split equally between 2 parties', () => {
-    const parties = calculatePartyList({
-      parties: [partyB, partyB],
-      voterCount: 2000,
-      voteNoCount: 0,
-      invalidCount: 0,
-    })
+    const parties = calculatePartyList([partyB, partyG])
     assert.equal(parties.length, 2)
     assert.equal(parties[0].partyListMemberCount, 75)
     assert.equal(parties[1].partyListMemberCount, 75)
   })
   it('should exclude parties not submitting candidate', () => {
-    const parties = calculatePartyList({
-      parties: [partyB, partyC],
-      voterCount: 2000,
-      voteNoCount: 0,
-      invalidCount: 0,
-    })
+    const parties = calculatePartyList([partyB, partyC])
     assert.equal(parties.length, 2)
     assert.equal(parties[0].partyListMemberCount, 150)
     assert.equal(parties[1].partyListMemberCount, 0)
   })
   it('should exclude parties not reaching minimum votes', () => {
-    const parties = calculatePartyList({
-      parties: [partyB, partyD],
-      voterCount: 1001,
-      voteNoCount: 0,
-      invalidCount: 0,
-    })
+    const parties = calculatePartyList([partyB, partyD])
     assert.equal(parties.length, 2)
     assert.equal(parties[0].partyListMemberCount, 150)
     assert.equal(parties[1].partyListMemberCount, 0)
   })
   it('should exclude vote no and invalid ballot', () => {
-    const parties = calculatePartyList({
-      parties: [partyB, partyB],
-      voterCount: 2008,
-      voteNoCount: 5,
-      invalidCount: 3,
-    })
+    const parties = calculatePartyList([partyB, partyG])
     assert.equal(parties.length, 2)
     assert.equal(parties[0].partyListMemberCount, 75)
     assert.equal(parties[1].partyListMemberCount, 75)
   })
   it('should exclude party with exceeded elected members', () => {
-    const parties = calculatePartyList({
-      parties: [partyE, partyF],
-      voterCount: 2000,
-      voteNoCount: 0,
-      invalidCount: 0,
-    })
+    const parties = calculatePartyList([partyE, partyF])
     assert.equal(parties.length, 2)
     assert.equal(parties[0].partyListMemberCount, 0)
     assert.equal(parties[1].partyListMemberCount, 150)
-  })
-  it('should throw error if total votes does not make sense (exceed)', () => {
-    assert.throws(() => {
-      calculatePartyList({
-        parties: [partyB, partyB],
-        voterCount: 1999,
-        voteNoCount: 0,
-        invalidCount: 0,
-      })
-    })
-  })
-  it('should throw error if total votes does not make sense (lacking)', () => {
-    assert.throws(() => {
-      calculatePartyList({
-        parties: [partyB, partyB],
-        voterCount: 2001,
-        voteNoCount: 0,
-        invalidCount: 0,
-      })
-    })
   })
 })
