@@ -25,6 +25,18 @@ const partyD = new Party({
   voteCount: 1,
   partyListCandidateCount: 150
 });
+const partyE = new Party({
+  id: "4",
+  electedMemberCount: 251,
+  voteCount: 1000,
+  partyListCandidateCount: 150
+});
+const partyF = new Party({
+  id: "5",
+  electedMemberCount: 99,
+  voteCount: 1000,
+  partyListCandidateCount: 150
+});
 describe("Thailand Election Party List Calculation", () => {
   it("should pass monopoly case", () => {
     const parties = calculatePartyList({
@@ -33,6 +45,7 @@ describe("Thailand Election Party List Calculation", () => {
       voteNoCount: 0,
       invalidCount: 0
     });
+    assert.equal(parties.length, 1);
     assert.equal(parties[0].partyListMember, 150);
   });
   it("should split equally between 2 parties", () => {
@@ -42,6 +55,7 @@ describe("Thailand Election Party List Calculation", () => {
       voteNoCount: 0,
       invalidCount: 0
     });
+    assert.equal(parties.length, 2);
     assert.equal(parties[0].partyListMember, 75);
     assert.equal(parties[1].partyListMember, 75);
   });
@@ -52,6 +66,7 @@ describe("Thailand Election Party List Calculation", () => {
       voteNoCount: 0,
       invalidCount: 0
     });
+    assert.equal(parties.length, 2);
     assert.equal(parties[0].partyListMember, 150);
     assert.equal(parties[1].partyListMember, 0);
   });
@@ -62,6 +77,7 @@ describe("Thailand Election Party List Calculation", () => {
       voteNoCount: 0,
       invalidCount: 0
     });
+    assert.equal(parties.length, 2);
     assert.equal(parties[0].partyListMember, 150);
     assert.equal(parties[1].partyListMember, 0);
   });
@@ -72,15 +88,36 @@ describe("Thailand Election Party List Calculation", () => {
       voteNoCount: 5,
       invalidCount: 3
     });
+    assert.equal(parties.length, 2);
     assert.equal(parties[0].partyListMember, 75);
     assert.equal(parties[1].partyListMember, 75);
-    assert.equal(parties.length, 2);
   });
-  it("should throw error if total votes does not make sense", () => {
+  it("should exclude party with exceeded elected members", () => {
+    const parties = calculatePartyList({
+      parties: [partyE, partyF],
+      voterCount: 2000,
+      voteNoCount: 0,
+      invalidCount: 0
+    });
+    assert.equal(parties.length, 2);
+    assert.equal(parties[0].partyListMember, 0);
+    assert.equal(parties[1].partyListMember, 150);
+  });
+  it("should throw error if total votes does not make sense (exceed)", () => {
     assert.throws(() => {
       calculatePartyList({
         parties: [partyB, partyB],
         voterCount: 1999,
+        voteNoCount: 0,
+        invalidCount: 0
+      });
+    });
+  });
+  it("should throw error if total votes does not make sense (lacking)", () => {
+    assert.throws(() => {
+      calculatePartyList({
+        parties: [partyB, partyB],
+        voterCount: 2001,
         voteNoCount: 0,
         invalidCount: 0
       });
