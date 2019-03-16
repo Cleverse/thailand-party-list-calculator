@@ -3,7 +3,6 @@
  * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2560
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-var _ = require("lodash");
 var bignumber_js_1 = require("bignumber.js");
 exports.PARTY_LIST_LIMIT = 150;
 exports.REP_LIMIT = 500;
@@ -11,7 +10,7 @@ bignumber_js_1.default.config({
     DECIMAL_PLACES: 4,
 });
 exports.calculatePartyList = function (partiesInterface) {
-    var originalIds = _.map(partiesInterface, function (p) { return p.id; });
+    var originalIds = partiesInterface.map(function (p) { return p.id; });
     var allValidScores = getAllValidScores(partiesInterface);
     var score4Rep = calculateScore4Rep(allValidScores);
     var remainingPartyListSeat = exports.PARTY_LIST_LIMIT;
@@ -47,7 +46,7 @@ exports.calculatePartyList = function (partiesInterface) {
     return parties;
 };
 var getAllValidScores = function (parties) {
-    return _.reduce(parties, function (result, party) {
+    return parties.reduce(function (result, party) {
         return result + party.voteCount;
     }, 0);
 };
@@ -55,7 +54,7 @@ var calculateScore4Rep = function (validScores) {
     return new bignumber_js_1.default(validScores).dividedBy(new bignumber_js_1.default(exports.REP_LIMIT));
 };
 var mapRepCeiling = function (parties, score4Rep) {
-    return _.map(parties, function (party) {
+    return parties.map(function (party) {
         var p = new Party({
             id: party.id,
             electedMemberCount: party.electedMemberCount,
@@ -72,7 +71,7 @@ var calculatePartyListMemberCount = function (_a) {
     var parties = _a.parties, remainingPartyListSeat = _a.remainingPartyListSeat, totalPartyListMember = _a.totalPartyListMember;
     var newRemainingPartyListSeat = remainingPartyListSeat;
     var newTotalPartyListMember = totalPartyListMember;
-    var result = _.map(parties, function (p) {
+    var result = parties.map(function (p) {
         var repCeiling = p.getRepCeilingInt();
         var expectRep = repCeiling.toNumber() - p.electedMemberCount;
         var partyListMemberCount = Math.min(p.partyListCandidateCount, Math.max(expectRep, 0));
@@ -91,7 +90,7 @@ var rebalancePartyListMember = function (_a) {
     var parties = _a.parties, totalPartyListMember = _a.totalPartyListMember;
     var newRemainingPartyListSeat = exports.PARTY_LIST_LIMIT;
     var newTotalPartyListMember = 0;
-    var result = _.map(parties, function (p) {
+    var result = parties.map(function (p) {
         var tempPartyListMemberCount = new bignumber_js_1.default(p.partyListMemberCount);
         var partyListMemberCount = tempPartyListMemberCount
             .multipliedBy(exports.REP_LIMIT)
@@ -128,7 +127,7 @@ var distributeRemainingSeats = function (_a, originalIds) {
     var parties = _a.parties, remainingPartyListSeat = _a.remainingPartyListSeat, totalPartyListMember = _a.totalPartyListMember;
     var newRemainingPartyListSeat = remainingPartyListSeat;
     var newTotalPartyListMember = totalPartyListMember;
-    var clonedParties = _.clone(parties);
+    var clonedParties = parties;
     clonedParties.sort(compareParty);
     var index = 0;
     var viableParties = clonedParties;
@@ -144,7 +143,7 @@ var distributeRemainingSeats = function (_a, originalIds) {
         newRemainingPartyListSeat -= 1;
         newTotalPartyListMember += 1;
     }
-    var sortedParties = _.map(originalIds, function (id) { return _.find(clonedParties, function (p) { return p.id === id; }); });
+    var sortedParties = originalIds.map(function (id) { return clonedParties.filter(function (party) { return party.id === id; })[0]; });
     return {
         parties: sortedParties,
         remainingPartyListSeat: newRemainingPartyListSeat,

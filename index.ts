@@ -2,7 +2,6 @@
  * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2560
  */
 
-import * as _ from 'lodash'
 import BigNumber from 'bignumber.js'
 
 interface IParty {
@@ -22,7 +21,7 @@ BigNumber.config({
 })
 
 export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
-  const originalIds = _.map(partiesInterface, p => p.id)
+  const originalIds = partiesInterface.map(p => p.id)
   const allValidScores = getAllValidScores(partiesInterface)
   const score4Rep = calculateScore4Rep(allValidScores)
 
@@ -77,19 +76,15 @@ interface ICalculateOutput {
 }
 
 const getAllValidScores = (parties: IParty[]) =>
-  _.reduce(
-    parties,
-    (result, party) => {
-      return result + party.voteCount
-    },
-    0
-  )
+  parties.reduce((result, party) => {
+    return result + party.voteCount
+  }, 0)
 
 const calculateScore4Rep = (validScores: number): BigNumber =>
   new BigNumber(validScores).dividedBy(new BigNumber(REP_LIMIT))
 
 const mapRepCeiling = (parties: IParty[], score4Rep: BigNumber): Party[] =>
-  _.map(parties, party => {
+  parties.map(party => {
     const p = new Party({
       id: party.id,
       electedMemberCount: party.electedMemberCount,
@@ -109,7 +104,7 @@ const calculatePartyListMemberCount = ({
 }: ICalculateInput): ICalculateOutput => {
   let newRemainingPartyListSeat = remainingPartyListSeat
   let newTotalPartyListMember = totalPartyListMember
-  const result = _.map(parties, p => {
+  const result = parties.map(p => {
     const repCeiling = p.getRepCeilingInt()
     const expectRep = repCeiling.toNumber() - p.electedMemberCount
     const partyListMemberCount = Math.min(
@@ -134,7 +129,7 @@ const rebalancePartyListMember = ({
 }: ICalculateInput): ICalculateOutput => {
   let newRemainingPartyListSeat = PARTY_LIST_LIMIT
   let newTotalPartyListMember = 0
-  const result = _.map(parties, p => {
+  const result = parties.map(p => {
     const tempPartyListMemberCount = new BigNumber(
       p.partyListMemberCount as number
     )
@@ -177,7 +172,7 @@ const distributeRemainingSeats = (
 ): ICalculateOutput => {
   let newRemainingPartyListSeat = remainingPartyListSeat
   let newTotalPartyListMember = totalPartyListMember
-  const clonedParties = _.clone(parties)
+  const clonedParties = parties
   clonedParties.sort(compareParty)
   let index = 0
   let viableParties = clonedParties
@@ -194,9 +189,8 @@ const distributeRemainingSeats = (
     newRemainingPartyListSeat -= 1
     newTotalPartyListMember += 1
   }
-  const sortedParties = _.map(
-    originalIds,
-    id => _.find(clonedParties, p => p.id === id) as Party
+  const sortedParties = originalIds.map(
+    id => clonedParties.filter(party => party.id === id)[0]
   )
   return {
     parties: sortedParties,
