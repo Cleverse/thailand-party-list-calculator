@@ -92,9 +92,11 @@ var rebalancePartyListMember = function (_a) {
     var newTotalPartyListMember = 0;
     var result = parties.map(function (p) {
         var tempPartyListMemberCount = new bignumber_js_1.default(p.partyListMemberCount);
-        var partyListMemberCount = tempPartyListMemberCount
+        var newRepCeiling = tempPartyListMemberCount
             .multipliedBy(exports.PARTY_LIST_LIMIT)
-            .dividedBy(new bignumber_js_1.default(totalPartyListMember))
+            .dividedBy(new bignumber_js_1.default(totalPartyListMember));
+        p.setRepCeiling(newRepCeiling);
+        var partyListMemberCount = newRepCeiling
             .integerValue(bignumber_js_1.default.ROUND_FLOOR)
             .toNumber();
         newRemainingPartyListSeat -= partyListMemberCount;
