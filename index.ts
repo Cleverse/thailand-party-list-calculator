@@ -133,9 +133,11 @@ const rebalancePartyListMember = ({
     const tempPartyListMemberCount = new BigNumber(
       p.partyListMemberCount as number
     )
-    const partyListMemberCount = tempPartyListMemberCount
+    const newRepCeiling = tempPartyListMemberCount
       .multipliedBy(PARTY_LIST_LIMIT)
       .dividedBy(new BigNumber(totalPartyListMember))
+    p.setRepCeiling(newRepCeiling)
+    const partyListMemberCount = newRepCeiling
       .integerValue(BigNumber.ROUND_FLOOR)
       .toNumber()
     newRemainingPartyListSeat -= partyListMemberCount
