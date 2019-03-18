@@ -134,7 +134,7 @@ const rebalancePartyListMember = ({
       p.partyListMemberCount as number
     )
     const partyListMemberCount = tempPartyListMemberCount
-      .multipliedBy(REP_LIMIT)
+      .multipliedBy(PARTY_LIST_LIMIT)
       .dividedBy(new BigNumber(totalPartyListMember))
       .integerValue(BigNumber.ROUND_FLOOR)
       .toNumber()
