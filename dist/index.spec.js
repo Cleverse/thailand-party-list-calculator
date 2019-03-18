@@ -44,6 +44,42 @@ var partyG = new index_1.Party({
     voteCount: 1000,
     partyListCandidateCount: 150,
 });
+var partyH = new index_1.Party({
+    id: '7',
+    electedMemberCount: 31,
+    voteCount: 1040,
+    partyListCandidateCount: 40,
+});
+var partyI = new index_1.Party({
+    id: '8',
+    electedMemberCount: 15,
+    voteCount: 700,
+    partyListCandidateCount: 34,
+});
+var partyJ = new index_1.Party({
+    id: '9',
+    electedMemberCount: 38,
+    voteCount: 900,
+    partyListCandidateCount: 150,
+});
+var partyK = new index_1.Party({
+    id: '10',
+    electedMemberCount: 34,
+    voteCount: 870,
+    partyListCandidateCount: 128,
+});
+var partyL = new index_1.Party({
+    id: '11',
+    electedMemberCount: 166,
+    voteCount: 2750,
+    partyListCandidateCount: 149,
+});
+var partyM = new index_1.Party({
+    id: '12',
+    electedMemberCount: 66,
+    voteCount: 920,
+    partyListCandidateCount: 101,
+});
 describe('Thailand Election Party List Calculation', function () {
     it('should pass monopoly case', function () {
         var parties = index_1.calculatePartyList([partyA]);
@@ -79,5 +115,15 @@ describe('Thailand Election Party List Calculation', function () {
         assert.equal(parties.length, 2);
         assert.equal(parties[0].partyListMemberCount, 0);
         assert.equal(parties[1].partyListMemberCount, 150);
+    });
+    it('should distribute seat to party having greatest remaining and candidate available', function () {
+        var parties = index_1.calculatePartyList([partyH, partyI, partyJ, partyK, partyL, partyM]);
+        assert.equal(parties.length, 6);
+        assert.equal(parties[0].partyListMemberCount, 40);
+        assert.equal(parties[1].partyListMemberCount, 34);
+        assert.equal(parties[2].partyListMemberCount, 25);
+        assert.equal(parties[3].partyListMemberCount, 26);
+        assert.equal(parties[4].partyListMemberCount, 25);
+        assert.equal(parties[5].partyListMemberCount, 0);
     });
 });

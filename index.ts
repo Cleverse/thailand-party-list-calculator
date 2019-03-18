@@ -177,17 +177,20 @@ const distributeRemainingSeats = (
   let index = 0
   let viableParties = clonedParties
   while (newRemainingPartyListSeat > 0 && viableParties.length > 0) {
-    viableParties = viableParties.filter(
-      p =>
-        p.isViableForPartyList() &&
-        p.partyListCandidateCount > p.partyListMemberCount
-    )
+    if (index === 0) {
+      viableParties = viableParties.filter(
+        p =>
+          p.isViableForPartyList() &&
+          p.partyListCandidateCount > p.partyListMemberCount
+      )
+    }
     const viablePartiesIndex = index % viableParties.length
     const viableParty = viableParties[viablePartiesIndex]
     viableParty.partyListMemberCount += 1
     index += 1
     newRemainingPartyListSeat -= 1
     newTotalPartyListMember += 1
+    if (index === viableParties.length) index = 0
   }
   const sortedParties = originalIds.map(
     id => clonedParties.filter(party => party.id === id)[0]
