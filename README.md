@@ -14,6 +14,14 @@ the House of Representatives, B.E. 2560 (2017)
 This is not the official software. We do not hold any responsibility for any
 mistake in any law interpretation or logic implementation.
 
+## Installation
+
+`npm install thailand-party-list-calculator`
+
+or
+
+`yarn add thailand-party-list-calculator`
+
 ## Usage
 
 ```javascript
