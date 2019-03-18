@@ -93,7 +93,7 @@ var rebalancePartyListMember = function (_a) {
     var result = parties.map(function (p) {
         var tempPartyListMemberCount = new bignumber_js_1.default(p.partyListMemberCount);
         var partyListMemberCount = tempPartyListMemberCount
-            .multipliedBy(exports.REP_LIMIT)
+            .multipliedBy(exports.PARTY_LIST_LIMIT)
             .dividedBy(new bignumber_js_1.default(totalPartyListMember))
             .integerValue(bignumber_js_1.default.ROUND_FLOOR)
             .toNumber();
@@ -132,16 +132,20 @@ var distributeRemainingSeats = function (_a, originalIds) {
     var index = 0;
     var viableParties = clonedParties;
     while (newRemainingPartyListSeat > 0 && viableParties.length > 0) {
-        viableParties = viableParties.filter(function (p) {
-            return p.isViableForPartyList() &&
-                p.partyListCandidateCount > p.partyListMemberCount;
-        });
+        if (index === 0) {
+            viableParties = viableParties.filter(function (p) {
+                return p.isViableForPartyList() &&
+                    p.partyListCandidateCount > p.partyListMemberCount;
+            });
+        }
         var viablePartiesIndex = index % viableParties.length;
         var viableParty = viableParties[viablePartiesIndex];
         viableParty.partyListMemberCount += 1;
         index += 1;
         newRemainingPartyListSeat -= 1;
         newTotalPartyListMember += 1;
+        if (index === viableParties.length)
+            index = 0;
     }
     var sortedParties = originalIds.map(function (id) { return clonedParties.filter(function (party) { return party.id === id; })[0]; });
     return {
