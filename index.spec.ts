@@ -156,4 +156,145 @@ describe('Thailand Election Party List Calculation', () => {
     assert.equal(parties[4].partyListMemberCount, 25)
     assert.equal(parties[5].partyListMemberCount, 0)
   })
+  it('should distribute remaining seats when some remainders are equal', () => {
+    const parties = calculatePartyList([
+      {
+        id: '7',
+        electedMemberCount: 140,
+        voteCount: 43123151,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '8',
+        electedMemberCount: 3,
+        voteCount: 4713773,
+        partyListCandidateCount: 21,
+      },
+      {
+        id: '9',
+        electedMemberCount: 200,
+        voteCount: 38183888,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '10',
+        electedMemberCount: 4,
+        voteCount: 2530790,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '11',
+        electedMemberCount: 2,
+        voteCount: 2342339,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '12',
+        electedMemberCount: 1,
+        voteCount: 3323443,
+        partyListCandidateCount: 150,
+      },
+    ])
+    assert.equal(parties.length, 6)
+    assert.equal(parties[0].partyListMemberCount, 89)
+    assert.equal(parties[1].partyListMemberCount, 21)
+    assert.equal(parties[2].partyListMemberCount, 3)
+    assert.equal(parties[3].partyListMemberCount, 9)
+    assert.equal(parties[4].partyListMemberCount, 11)
+    assert.equal(parties[5].partyListMemberCount, 17)
+  })
+  it('should rebalance when party list members count exceeds limit then distribute', () => {
+    const parties = calculatePartyList([
+      {
+        id: '7',
+        electedMemberCount: 140,
+        voteCount: 91231233,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '8',
+        electedMemberCount: 3,
+        voteCount: 4234234,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '9',
+        electedMemberCount: 200,
+        voteCount: 43423444,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '10',
+        electedMemberCount: 4,
+        voteCount: 2342342,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '11',
+        electedMemberCount: 2,
+        voteCount: 2342334,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '12',
+        electedMemberCount: 1,
+        voteCount: 3323443,
+        partyListCandidateCount: 150,
+      },
+    ])
+    assert.equal(parties.length, 6)
+    assert.equal(parties[0].partyListMemberCount, 126)
+    assert.equal(parties[1].partyListMemberCount, 9)
+    assert.equal(parties[2].partyListMemberCount, 0)
+    assert.equal(parties[3].partyListMemberCount, 3)
+    assert.equal(parties[4].partyListMemberCount, 4)
+    assert.equal(parties[5].partyListMemberCount, 8)
+  })
+  it('should rebalance when party list members count exceeds limit then distribute when some remainders are equal', () => {
+    const parties = calculatePartyList([
+      {
+        id: '7',
+        electedMemberCount: 140,
+        voteCount: 91231233,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '8',
+        electedMemberCount: 3,
+        voteCount: 4234234,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '9',
+        electedMemberCount: 200,
+        voteCount: 43423444,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '10',
+        electedMemberCount: 4,
+        voteCount: 2342342,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '11',
+        electedMemberCount: 4,
+        voteCount: 2342334,
+        partyListCandidateCount: 150,
+      },
+      {
+        id: '12',
+        electedMemberCount: 4,
+        voteCount: 3746233,
+        partyListCandidateCount: 150,
+      },
+    ])
+    assert.equal(parties.length, 6)
+    assert.equal(parties[0].partyListMemberCount, 128)
+    assert.equal(parties[1].partyListMemberCount, 9)
+    assert.equal(parties[2].partyListMemberCount, 0)
+    assert.equal(parties[3].partyListMemberCount, 3)
+    assert.equal(parties[4].partyListMemberCount, 3)
+    assert.equal(parties[5].partyListMemberCount, 7)
+  })
 })

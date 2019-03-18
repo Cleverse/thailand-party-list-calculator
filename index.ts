@@ -17,6 +17,7 @@ export const REP_LIMIT = 500
 
 BigNumber.config({
   DECIMAL_PLACES: 4,
+  ROUNDING_MODE: BigNumber.ROUND_FLOOR,
 })
 
 export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
@@ -135,10 +136,10 @@ const rebalancePartyListMember = ({
     const newRepCeiling = tempPartyListMemberCount
       .multipliedBy(PARTY_LIST_LIMIT)
       .dividedBy(new BigNumber(totalPartyListMember))
-    p.setRepCeiling(newRepCeiling)
     const partyListMemberCount = newRepCeiling
       .integerValue(BigNumber.ROUND_FLOOR)
       .toNumber()
+    p.setRemainderForSorting(newRepCeiling.minus(partyListMemberCount))
     newRemainingPartyListSeat -= partyListMemberCount
     newTotalPartyListMember += partyListMemberCount
     p.partyListMemberCount = partyListMemberCount
@@ -152,8 +153,8 @@ const rebalancePartyListMember = ({
 }
 
 const compareParty = (a: Party, b: Party) => {
-  const aRemainder = a.getRepCeilingRemainder()
-  const bRemainder = b.getRepCeilingRemainder()
+  const aRemainder = a.getRemainderForSorting()
+  const bRemainder = b.getRemainderForSorting()
   const aRepCeiling = a.getRepCeilingInt().toNumber()
   const bRepCeiling = b.getRepCeilingInt().toNumber()
   const aTempValue = a.voteCount / aRepCeiling
@@ -217,7 +218,7 @@ export class Party implements IParty {
   partyListMemberCount: number = 0
 
   private representativeCeiling = new BigNumber(0)
-  private remainder = new BigNumber(0)
+  private remainderForSorting = new BigNumber(0)
 
   constructor({
     id,
@@ -240,9 +241,13 @@ export class Party implements IParty {
   setRepCeiling = (ceiling: BigNumber) => {
     this.representativeCeiling = ceiling
     const intValue = this.getRepCeilingInt()
-    this.remainder = this.representativeCeiling.minus(intValue)
+    this.setRemainderForSorting(this.representativeCeiling.minus(intValue))
   }
   getRepCeilingInt = (): BigNumber =>
     this.representativeCeiling.integerValue(BigNumber.ROUND_FLOOR)
-  getRepCeilingRemainder = (): BigNumber => this.remainder
+
+  setRemainderForSorting = (remainder: BigNumber) => {
+    this.remainderForSorting = remainder
+  }
+  getRemainderForSorting = (): BigNumber => this.remainderForSorting
 }
