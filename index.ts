@@ -10,7 +10,6 @@ interface IParty {
   voteCount: number
   partyListCandidateCount: number
   partyListMemberCount?: number
-  isViableForPartyList(): Boolean
 }
 
 export const PARTY_LIST_LIMIT = 150
