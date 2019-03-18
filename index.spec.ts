@@ -1,4 +1,4 @@
-import { Party, calculatePartyList } from './index'
+import { calculatePartyList } from './index'
 import * as assert from 'assert'
 
 describe('Thailand Election Party List Calculation', () => {
