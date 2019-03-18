@@ -8,6 +8,7 @@ exports.PARTY_LIST_LIMIT = 150;
 exports.REP_LIMIT = 500;
 bignumber_js_1.default.config({
     DECIMAL_PLACES: 4,
+    ROUNDING_MODE: bignumber_js_1.default.ROUND_FLOOR,
 });
 exports.calculatePartyList = function (partiesInterface) {
     var originalIds = partiesInterface.map(function (p) { return p.id; });
@@ -95,10 +96,10 @@ var rebalancePartyListMember = function (_a) {
         var newRepCeiling = tempPartyListMemberCount
             .multipliedBy(exports.PARTY_LIST_LIMIT)
             .dividedBy(new bignumber_js_1.default(totalPartyListMember));
-        p.setRepCeiling(newRepCeiling);
         var partyListMemberCount = newRepCeiling
             .integerValue(bignumber_js_1.default.ROUND_FLOOR)
             .toNumber();
+        p.setRemainderForSorting(newRepCeiling.minus(partyListMemberCount));
         newRemainingPartyListSeat -= partyListMemberCount;
         newTotalPartyListMember += partyListMemberCount;
         p.partyListMemberCount = partyListMemberCount;
@@ -111,8 +112,8 @@ var rebalancePartyListMember = function (_a) {
     };
 };
 var compareParty = function (a, b) {
-    var aRemainder = a.getRepCeilingRemainder();
-    var bRemainder = b.getRepCeilingRemainder();
+    var aRemainder = a.getRemainderForSorting();
+    var bRemainder = b.getRemainderForSorting();
     var aRepCeiling = a.getRepCeilingInt().toNumber();
     var bRepCeiling = b.getRepCeilingInt().toNumber();
     var aTempValue = a.voteCount / aRepCeiling;
@@ -162,7 +163,7 @@ var Party = /** @class */ (function () {
         var _this = this;
         this.partyListMemberCount = 0;
         this.representativeCeiling = new bignumber_js_1.default(0);
-        this.remainder = new bignumber_js_1.default(0);
+        this.remainderForSorting = new bignumber_js_1.default(0);
         this.isViableForPartyList = function () {
             var repCeilingIntValue = _this.getRepCeilingInt().toNumber();
             return repCeilingIntValue > _this.electedMemberCount;
@@ -170,12 +171,15 @@ var Party = /** @class */ (function () {
         this.setRepCeiling = function (ceiling) {
             _this.representativeCeiling = ceiling;
             var intValue = _this.getRepCeilingInt();
-            _this.remainder = _this.representativeCeiling.minus(intValue);
+            _this.setRemainderForSorting(_this.representativeCeiling.minus(intValue));
         };
         this.getRepCeilingInt = function () {
             return _this.representativeCeiling.integerValue(bignumber_js_1.default.ROUND_FLOOR);
         };
-        this.getRepCeilingRemainder = function () { return _this.remainder; };
+        this.setRemainderForSorting = function (remainder) {
+            _this.remainderForSorting = remainder;
+        };
+        this.getRemainderForSorting = function () { return _this.remainderForSorting; };
         this.id = id;
         this.electedMemberCount = electedMemberCount;
         this.voteCount = voteCount;

@@ -8,7 +8,6 @@ interface IParty {
     voteCount: number;
     partyListCandidateCount: number;
     partyListMemberCount?: number;
-    isViableForPartyList(): Boolean;
 }
 export declare const PARTY_LIST_LIMIT = 150;
 export declare const REP_LIMIT = 500;
@@ -26,11 +25,12 @@ export declare class Party implements IParty {
     partyListCandidateCount: number;
     partyListMemberCount: number;
     private representativeCeiling;
-    private remainder;
+    private remainderForSorting;
     constructor({ id, electedMemberCount, voteCount, partyListCandidateCount, }: IPartyClassConstructorProps);
     isViableForPartyList: () => Boolean;
     setRepCeiling: (ceiling: BigNumber) => void;
     getRepCeilingInt: () => BigNumber;
-    getRepCeilingRemainder: () => BigNumber;
+    setRemainderForSorting: (remainder: BigNumber) => void;
+    getRemainderForSorting: () => BigNumber;
 }
 export {};
