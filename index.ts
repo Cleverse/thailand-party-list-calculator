@@ -1,5 +1,6 @@
 /***
- * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2560
+ * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2561
+ * https://www.ect.go.th/ect_th/download/article/article_20180913155522.pdf
  */
 
 import BigNumber from 'bignumber.js'
@@ -12,21 +13,29 @@ interface IParty {
   partyListMemberCount?: number
 }
 
+// § 128(4)
 export const PARTY_LIST_LIMIT = 150
+
+// § 128(1)
 export const REP_LIMIT = 500
 
 BigNumber.config({
+  // § 128, ¶ 1
   DECIMAL_PLACES: 4,
   ROUNDING_MODE: BigNumber.ROUND_FLOOR,
 })
 
 export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
   const originalIds = partiesInterface.map(p => p.id)
+
+  // § 128(1)
   const allValidScores = getAllValidScores(partiesInterface)
   const score4Rep = calculateScore4Rep(allValidScores)
 
   let remainingPartyListSeat = PARTY_LIST_LIMIT
   let totalPartyListMember = 0
+
+  // § 128(2)
   let parties = mapRepCeiling(partiesInterface, score4Rep)
   const extractOutput = (out: ICalculateOutput) => {
     parties = out.parties
@@ -34,6 +43,7 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
     totalPartyListMember = out.totalPartyListMember
   }
 
+  // § 128(3–4)
   const output = calculatePartyListMemberCount({
     parties,
     remainingPartyListSeat,
@@ -41,6 +51,7 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
   })
   extractOutput(output)
 
+  // § 128(7)
   if (totalPartyListMember > PARTY_LIST_LIMIT) {
     const output = rebalancePartyListMember({
       parties,
@@ -49,6 +60,7 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
     })
     extractOutput(output)
   }
+  // § 128(6)
   if (remainingPartyListSeat > 0) {
     const output = distributeRemainingSeats(
       {
@@ -75,14 +87,17 @@ interface ICalculateOutput {
   totalPartyListMember: number
 }
 
+// § 128(1)
 const getAllValidScores = (parties: IParty[]) =>
   parties.reduce((result, party) => {
     return result + party.voteCount
   }, 0)
 
+// § 128(1)
 const calculateScore4Rep = (validScores: number): BigNumber =>
   new BigNumber(validScores).dividedBy(new BigNumber(REP_LIMIT))
 
+// § 128(2)
 const mapRepCeiling = (parties: IParty[], score4Rep: BigNumber): Party[] =>
   parties.map(party => {
     const p = new Party({
@@ -105,8 +120,10 @@ const calculatePartyListMemberCount = ({
   let newRemainingPartyListSeat = remainingPartyListSeat
   let newTotalPartyListMember = totalPartyListMember
   const result = parties.map(p => {
+    // § 128(3)
     const repCeiling = p.getRepCeilingInt()
     const expectRep = repCeiling.toNumber() - p.electedMemberCount
+    // § 128(4)
     const partyListMemberCount = Math.min(
       p.partyListCandidateCount,
       Math.max(expectRep, 0)
@@ -123,6 +140,7 @@ const calculatePartyListMemberCount = ({
   }
 }
 
+// § 128(7)
 const rebalancePartyListMember = ({
   parties,
   totalPartyListMember,
@@ -152,6 +170,7 @@ const rebalancePartyListMember = ({
   }
 }
 
+// § 128(6)
 const compareParty = (a: Party, b: Party) => {
   const aRemainder = a.getRemainderForSorting()
   const bRemainder = b.getRemainderForSorting()
@@ -168,6 +187,7 @@ const compareParty = (a: Party, b: Party) => {
     : 1
 }
 
+// § 128(6)
 const distributeRemainingSeats = (
   { parties, remainingPartyListSeat, totalPartyListMember }: ICalculateInput,
   originalIds: string[]
