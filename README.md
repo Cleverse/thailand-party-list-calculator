@@ -6,8 +6,8 @@ vote percentage reflects the percentage of each party in House of
 Representatives.
 
 This code implementation is based on Organic Act on the Election of Members of
-the House of Representatives, B.E. 2560 (2017)
-([พระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยคณะกรรมการการเลือกตั้ง พ.ศ. 2560](https://www.ect.go.th/ect_th/ewt_dl_link.php?nid=3120))
+the House of Representatives, B.E. 2561 (2018)
+([	พระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2561](https://www.ect.go.th/ect_th/ewt_dl_link.php?nid=4230))
 
 ## Disclaimer
 
