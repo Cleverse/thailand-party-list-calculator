@@ -71,7 +71,7 @@ describe('Thailand Election Party List Calculation', () => {
     assert.equal(parties[0].partyListMemberCount, 150)
     assert.equal(parties[1].partyListMemberCount, 0)
   })
-  it('should exclude vote no and invalid ballot', () => {
+  it('should consider parties submitting limited party-list candidates', () => {
     const parties = calculatePartyList([
       {
         id: '2',
@@ -83,12 +83,12 @@ describe('Thailand Election Party List Calculation', () => {
         id: '6',
         electedMemberCount: 175,
         voteCount: 1000,
-        partyListCandidateCount: 150,
+        partyListCandidateCount: 20,
       },
     ])
     assert.equal(parties.length, 2)
-    assert.equal(parties[0].partyListMemberCount, 75)
-    assert.equal(parties[1].partyListMemberCount, 75)
+    assert.equal(parties[0].partyListMemberCount, 130)
+    assert.equal(parties[1].partyListMemberCount, 20)
   })
   it('should exclude party with exceeded elected members', () => {
     const parties = calculatePartyList([
