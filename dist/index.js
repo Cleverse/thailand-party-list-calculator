@@ -1,33 +1,41 @@
 "use strict";
 /***
- * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2560
+ * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2561
+ * https://www.ect.go.th/ect_th/download/article/article_20180913155522.pdf
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 var bignumber_js_1 = require("bignumber.js");
+// § 128(4)
 exports.PARTY_LIST_LIMIT = 150;
+// § 128(1)
 exports.REP_LIMIT = 500;
 bignumber_js_1.default.config({
+    // § 128, ¶ 1
     DECIMAL_PLACES: 4,
     ROUNDING_MODE: bignumber_js_1.default.ROUND_FLOOR,
 });
 exports.calculatePartyList = function (partiesInterface) {
     var originalIds = partiesInterface.map(function (p) { return p.id; });
+    // § 128(1)
     var allValidScores = getAllValidScores(partiesInterface);
     var score4Rep = calculateScore4Rep(allValidScores);
     var remainingPartyListSeat = exports.PARTY_LIST_LIMIT;
     var totalPartyListMember = 0;
+    // § 128(2)
     var parties = mapRepCeiling(partiesInterface, score4Rep);
     var extractOutput = function (out) {
         parties = out.parties;
         remainingPartyListSeat = out.remainingPartyListSeat;
         totalPartyListMember = out.totalPartyListMember;
     };
+    // § 128(3–4)
     var output = calculatePartyListMemberCount({
         parties: parties,
         remainingPartyListSeat: remainingPartyListSeat,
         totalPartyListMember: totalPartyListMember,
     });
     extractOutput(output);
+    // § 128(7)
     if (totalPartyListMember > exports.PARTY_LIST_LIMIT) {
         var output_1 = rebalancePartyListMember({
             parties: parties,
@@ -36,6 +44,7 @@ exports.calculatePartyList = function (partiesInterface) {
         });
         extractOutput(output_1);
     }
+    // § 128(6)
     if (remainingPartyListSeat > 0) {
         var output_2 = distributeRemainingSeats({
             parties: parties,
@@ -46,14 +55,17 @@ exports.calculatePartyList = function (partiesInterface) {
     }
     return parties;
 };
+// § 128(1)
 var getAllValidScores = function (parties) {
     return parties.reduce(function (result, party) {
         return result + party.voteCount;
     }, 0);
 };
+// § 128(1)
 var calculateScore4Rep = function (validScores) {
     return new bignumber_js_1.default(validScores).dividedBy(new bignumber_js_1.default(exports.REP_LIMIT));
 };
+// § 128(2)
 var mapRepCeiling = function (parties, score4Rep) {
     return parties.map(function (party) {
         var p = new Party({
@@ -73,12 +85,18 @@ var calculatePartyListMemberCount = function (_a) {
     var newRemainingPartyListSeat = remainingPartyListSeat;
     var newTotalPartyListMember = totalPartyListMember;
     var result = parties.map(function (p) {
-        var repCeiling = p.getRepCeilingInt();
-        var expectRep = repCeiling.toNumber() - p.electedMemberCount;
-        var partyListMemberCount = Math.min(p.partyListCandidateCount, Math.max(expectRep, 0));
+        // § 128(3)
+        var repCeilingDecimal = p.getRepCeilingDecimal();
+        var expectRep = repCeilingDecimal.minus(p.electedMemberCount);
+        // § 128(4)
+        var partyListMemberCountDecimal = bignumber_js_1.default.minimum(p.partyListCandidateCount, bignumber_js_1.default.maximum(expectRep, 0));
+        var partyListMemberCount = partyListMemberCountDecimal
+            .integerValue(bignumber_js_1.default.ROUND_FLOOR)
+            .toNumber();
         newRemainingPartyListSeat -= partyListMemberCount;
         newTotalPartyListMember += partyListMemberCount;
         p.partyListMemberCount = partyListMemberCount;
+        p.partyListMemberCountDecimal = partyListMemberCountDecimal;
         return p;
     });
     return {
@@ -87,12 +105,13 @@ var calculatePartyListMemberCount = function (_a) {
         totalPartyListMember: newTotalPartyListMember,
     };
 };
+// § 128(7)
 var rebalancePartyListMember = function (_a) {
     var parties = _a.parties, totalPartyListMember = _a.totalPartyListMember;
     var newRemainingPartyListSeat = exports.PARTY_LIST_LIMIT;
     var newTotalPartyListMember = 0;
     var result = parties.map(function (p) {
-        var tempPartyListMemberCount = new bignumber_js_1.default(p.partyListMemberCount);
+        var tempPartyListMemberCount = p.partyListMemberCountDecimal;
         var newRepCeiling = tempPartyListMemberCount
             .multipliedBy(exports.PARTY_LIST_LIMIT)
             .dividedBy(new bignumber_js_1.default(totalPartyListMember));
@@ -111,6 +130,7 @@ var rebalancePartyListMember = function (_a) {
         totalPartyListMember: newTotalPartyListMember,
     };
 };
+// § 128(6)
 var compareParty = function (a, b) {
     var aRemainder = a.getRemainderForSorting();
     var bRemainder = b.getRemainderForSorting();
@@ -126,6 +146,7 @@ var compareParty = function (a, b) {
                 ? -1
                 : 1;
 };
+// § 128(6)
 var distributeRemainingSeats = function (_a, originalIds) {
     var parties = _a.parties, remainingPartyListSeat = _a.remainingPartyListSeat, totalPartyListMember = _a.totalPartyListMember;
     var newRemainingPartyListSeat = remainingPartyListSeat;
@@ -162,6 +183,7 @@ var Party = /** @class */ (function () {
         var id = _a.id, electedMemberCount = _a.electedMemberCount, voteCount = _a.voteCount, partyListCandidateCount = _a.partyListCandidateCount;
         var _this = this;
         this.partyListMemberCount = 0;
+        this.partyListMemberCountDecimal = new bignumber_js_1.default(0);
         this.representativeCeiling = new bignumber_js_1.default(0);
         this.remainderForSorting = new bignumber_js_1.default(0);
         this.isViableForPartyList = function () {
@@ -176,6 +198,7 @@ var Party = /** @class */ (function () {
         this.getRepCeilingInt = function () {
             return _this.representativeCeiling.integerValue(bignumber_js_1.default.ROUND_FLOOR);
         };
+        this.getRepCeilingDecimal = function () { return _this.representativeCeiling; };
         this.setRemainderForSorting = function (remainder) {
             _this.remainderForSorting = remainder;
         };

@@ -1,5 +1,6 @@
 /***
- * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2560
+ * อ้างอิงตามพระราชบัญญัติประกอบรัฐธรรมนูญว่าด้วยการเลือกตั้งสมาชิกสภาผู้แทนราษฎร พ.ศ. 2561
+ * https://www.ect.go.th/ect_th/download/article/article_20180913155522.pdf
  */
 import BigNumber from 'bignumber.js';
 interface IParty {
@@ -24,12 +25,14 @@ export declare class Party implements IParty {
     voteCount: number;
     partyListCandidateCount: number;
     partyListMemberCount: number;
+    partyListMemberCountDecimal: BigNumber;
     private representativeCeiling;
     private remainderForSorting;
     constructor({ id, electedMemberCount, voteCount, partyListCandidateCount, }: IPartyClassConstructorProps);
     isViableForPartyList: () => Boolean;
     setRepCeiling: (ceiling: BigNumber) => void;
     getRepCeilingInt: () => BigNumber;
+    getRepCeilingDecimal: () => BigNumber;
     setRemainderForSorting: (remainder: BigNumber) => void;
     getRemainderForSorting: () => BigNumber;
 }
