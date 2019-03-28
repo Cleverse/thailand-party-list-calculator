@@ -42,7 +42,7 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
     remainingPartyListSeat = out.remainingPartyListSeat
     totalPartyListMember = out.totalPartyListMember
   }
-
+  
   // § 128(3–4)
   const output = calculatePartyListMemberCount({
     parties,
@@ -60,6 +60,7 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
     })
     extractOutput(output)
   }
+
   // § 128(6)
   if (remainingPartyListSeat > 0) {
     const output = distributeRemainingSeats(
@@ -90,7 +91,9 @@ interface ICalculateOutput {
 // § 128(1)
 const getAllValidScores = (parties: IParty[]) =>
   parties.reduce((result, party) => {
-    return result + party.voteCount
+    return new Party({...party}).hasPartyListCandidate()
+      ? result + party.voteCount
+      : result
   }, 0)
 
 // § 128(1)
@@ -123,11 +126,13 @@ const calculatePartyListMemberCount = ({
     // § 128(3)
     const repCeiling = p.getRepCeilingInt()
     const expectRep = repCeiling.toNumber() - p.electedMemberCount
+    
     // § 128(4)
     const partyListMemberCount = Math.min(
       p.partyListCandidateCount,
       Math.max(expectRep, 0)
     )
+
     newRemainingPartyListSeat -= partyListMemberCount
     newTotalPartyListMember += partyListMemberCount
     p.partyListMemberCount = partyListMemberCount
@@ -252,6 +257,8 @@ export class Party implements IParty {
     this.partyListCandidateCount = partyListCandidateCount
     this.partyListMemberCount = 0
   }
+
+  hasPartyListCandidate = (): Boolean => Boolean(this.partyListCandidateCount) && this.partyListCandidateCount > 0
 
   isViableForPartyList = (): Boolean => {
     const repCeilingIntValue = this.getRepCeilingInt().toNumber()
