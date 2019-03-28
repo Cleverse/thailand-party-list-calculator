@@ -121,16 +121,20 @@ const calculatePartyListMemberCount = ({
   let newTotalPartyListMember = totalPartyListMember
   const result = parties.map(p => {
     // § 128(3)
-    const repCeiling = p.getRepCeilingInt()
-    const expectRep = repCeiling.toNumber() - p.electedMemberCount
+    const repCeilingDecimal = p.getRepCeilingDecimal()
+    const expectRep = repCeilingDecimal.minus(p.electedMemberCount)
     // § 128(4)
-    const partyListMemberCount = Math.min(
+    const partyListMemberCountDecimal = BigNumber.minimum(
       p.partyListCandidateCount,
-      Math.max(expectRep, 0)
+      BigNumber.maximum(expectRep, 0)
     )
+    const partyListMemberCount = partyListMemberCountDecimal
+      .integerValue(BigNumber.ROUND_FLOOR)
+      .toNumber()
     newRemainingPartyListSeat -= partyListMemberCount
     newTotalPartyListMember += partyListMemberCount
     p.partyListMemberCount = partyListMemberCount
+    p.partyListMemberCountDecimal = partyListMemberCountDecimal
     return p
   })
   return {
@@ -148,9 +152,7 @@ const rebalancePartyListMember = ({
   let newRemainingPartyListSeat = PARTY_LIST_LIMIT
   let newTotalPartyListMember = 0
   const result = parties.map(p => {
-    const tempPartyListMemberCount = new BigNumber(
-      p.partyListMemberCount as number
-    )
+    const tempPartyListMemberCount = p.partyListMemberCountDecimal
     const newRepCeiling = tempPartyListMemberCount
       .multipliedBy(PARTY_LIST_LIMIT)
       .dividedBy(new BigNumber(totalPartyListMember))
@@ -236,7 +238,7 @@ export class Party implements IParty {
   voteCount: number
   partyListCandidateCount: number
   partyListMemberCount: number = 0
-
+  partyListMemberCountDecimal = new BigNumber(0)
   private representativeCeiling = new BigNumber(0)
   private remainderForSorting = new BigNumber(0)
 
@@ -265,6 +267,7 @@ export class Party implements IParty {
   }
   getRepCeilingInt = (): BigNumber =>
     this.representativeCeiling.integerValue(BigNumber.ROUND_FLOOR)
+  getRepCeilingDecimal = (): BigNumber => this.representativeCeiling
 
   setRemainderForSorting = (remainder: BigNumber) => {
     this.remainderForSorting = remainder
