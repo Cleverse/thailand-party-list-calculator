@@ -7,6 +7,18 @@
   resolved "https://registry.yarnpkg.com/@types/assert/-/assert-1.4.2.tgz#e9116f5abf9cbd0c86ed22e38185b71e7f44071c"
   integrity sha512-N5I8kX4ybqvqi4A+Y8b3coatbuRKWaa+sEPm3aCFdm9oCxsDvwY/ELNV4c/56W5MdRKJ6b8AOWRFyxhi437t7A==
 
+"@types/jest-diff@*":
+  version "20.0.1"
+  resolved "https://registry.yarnpkg.com/@types/jest-diff/-/jest-diff-20.0.1.tgz#35cc15b9c4f30a18ef21852e255fdb02f6d59b89"
+  integrity sha512-yALhelO3i0hqZwhjtcr6dYyaLoCHbAMshwtj6cGxTvHZAKXHsYGdff6E8EPw3xLKY0ELUTQ69Q1rQiJENnccMA==
+
+"@types/jest@^24.0.11":
+  version "24.0.11"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.11.tgz#1f099bea332c228ea6505a88159bfa86a5858340"
+  integrity sha512-2kLuPC5FDnWIDvaJBzsGTBQaBbnDweznicvK7UGYzlIJP4RJR2a4A/ByLUXEyEgag6jz8eHdlWExGDtH3EYUXQ==
+  dependencies:
+    "@types/jest-diff" "*"
+
 "@types/lodash@^4.14.123":
   version "4.14.123"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.123.tgz#39be5d211478c8dd3bdae98ee75bb7efe4abfe4d"
