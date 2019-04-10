@@ -55,9 +55,9 @@ describe('Thailand Election Party List Calculation', () => {
       },
     ])
     assert.equal(parties.length, 3)
-    assert.equal(parties[0].partyListMemberCount, 85)
+    assert.equal(parties[0].partyListMemberCount, 84)
     assert.equal(parties[1].partyListMemberCount, 0)
-    assert.equal(parties[2].partyListMemberCount, 65)
+    assert.equal(parties[2].partyListMemberCount, 66)
   })
   it('should exclude parties not submitting candidate', () => {
     const parties = calculatePartyList([
