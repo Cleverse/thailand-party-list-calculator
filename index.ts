@@ -90,7 +90,9 @@ interface ICalculateOutput {
 // § 128(1)
 const getAllValidScores = (parties: IParty[]) =>
   parties.reduce((result, party) => {
-    return result + party.voteCount
+    return party.partyListCandidateCount > 0
+      ? result + party.voteCount
+      : result
   }, 0)
 
 // § 128(1)
