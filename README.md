@@ -39,3 +39,6 @@ const parties = calculatePartyList([
 
 // parties[0].partyListMemberCount
 ```
+
+## Changelog
+- **v1.0.5** Change the formula to aligned with the ECT's result announcement

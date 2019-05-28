@@ -22,7 +22,7 @@ export const REP_LIMIT = 500
 BigNumber.config({
   // § 128, ¶ 1
   DECIMAL_PLACES: 4,
-  ROUNDING_MODE: BigNumber.ROUND_FLOOR,
+  ROUNDING_MODE: BigNumber.ROUND_HALF_EVEN,
 })
 
 export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
@@ -32,8 +32,8 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
   const allValidScores = getAllValidScores(partiesInterface)
   const score4Rep = calculateScore4Rep(allValidScores)
 
-  let remainingPartyListSeat = PARTY_LIST_LIMIT
-  let totalPartyListMember = 0
+  let remainingPartyListSeat = new BigNumber(PARTY_LIST_LIMIT)
+  let totalPartyListMember = new BigNumber(0)
 
   // § 128(2)
   let parties = mapRepCeiling(partiesInterface, score4Rep)
@@ -44,15 +44,14 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
   }
 
   // § 128(3–4)
-  const output = calculatePartyListMemberCount({
+  let output = calculatePartyListMemberCount({
     parties,
     remainingPartyListSeat,
     totalPartyListMember,
   })
   extractOutput(output)
-
   // § 128(7)
-  if (totalPartyListMember > PARTY_LIST_LIMIT) {
+  if (totalPartyListMember.isGreaterThan(PARTY_LIST_LIMIT)) {
     const output = rebalancePartyListMember({
       parties,
       remainingPartyListSeat,
@@ -60,8 +59,10 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
     })
     extractOutput(output)
   }
+  output = capPartyListCandidate(parties)
+  extractOutput(output)
   // § 128(6)
-  if (remainingPartyListSeat > 0) {
+  if (remainingPartyListSeat.isGreaterThan(0)) {
     const output = distributeRemainingSeats(
       {
         parties,
@@ -78,15 +79,35 @@ export const calculatePartyList = (partiesInterface: IParty[]): IParty[] => {
 
 interface ICalculateInput {
   parties: Party[]
-  remainingPartyListSeat: number
-  totalPartyListMember: number
+  remainingPartyListSeat: BigNumber
+  totalPartyListMember: BigNumber
 }
 interface ICalculateOutput {
   parties: Party[]
-  remainingPartyListSeat: number
-  totalPartyListMember: number
+  remainingPartyListSeat: BigNumber
+  totalPartyListMember: BigNumber
 }
 
+const capPartyListCandidate = (parties: Party[]): ICalculateOutput => {
+  let totalPartyListMember = new BigNumber(0)
+  const result = parties.map(p => {
+    p.partyListMemberCount = Math.min(
+      p.partyListCandidateCount,
+      p.partyListMemberCount
+    )
+    totalPartyListMember = totalPartyListMember.plus(
+      new BigNumber(p.partyListMemberCount)
+    )
+    return p
+  })
+  return {
+    parties: result,
+    remainingPartyListSeat: new BigNumber(PARTY_LIST_LIMIT).minus(
+      totalPartyListMember
+    ),
+    totalPartyListMember,
+  }
+}
 // § 128(1)
 const getAllValidScores = (parties: IParty[]) =>
   parties.reduce((result, party) => {
@@ -124,15 +145,16 @@ const calculatePartyListMemberCount = ({
     const repCeilingDecimal = p.getRepCeilingDecimal()
     const expectRep = repCeilingDecimal.minus(p.electedMemberCount)
     // § 128(4)
-    const partyListMemberCountDecimal = BigNumber.minimum(
-      p.partyListCandidateCount,
-      BigNumber.maximum(expectRep, 0)
-    )
+    const partyListMemberCountDecimal = BigNumber.maximum(expectRep, 0)
     const partyListMemberCount = partyListMemberCountDecimal
       .integerValue(BigNumber.ROUND_FLOOR)
       .toNumber()
-    newRemainingPartyListSeat -= partyListMemberCount
-    newTotalPartyListMember += partyListMemberCount
+    newRemainingPartyListSeat = newRemainingPartyListSeat.minus(
+      partyListMemberCountDecimal
+    )
+    newTotalPartyListMember = newTotalPartyListMember.plus(
+      partyListMemberCountDecimal
+    )
     p.partyListMemberCount = partyListMemberCount
     p.partyListMemberCountDecimal = partyListMemberCountDecimal
     return p
@@ -149,20 +171,23 @@ const rebalancePartyListMember = ({
   parties,
   totalPartyListMember,
 }: ICalculateInput): ICalculateOutput => {
-  let newRemainingPartyListSeat = PARTY_LIST_LIMIT
-  let newTotalPartyListMember = 0
+  let newRemainingPartyListSeat = new BigNumber(PARTY_LIST_LIMIT)
+  let newTotalPartyListMember = new BigNumber(0)
   const result = parties.map(p => {
     const tempPartyListMemberCount = p.partyListMemberCountDecimal
     const newRepCeiling = tempPartyListMemberCount
       .multipliedBy(PARTY_LIST_LIMIT)
       .dividedBy(new BigNumber(totalPartyListMember))
-    const partyListMemberCount = newRepCeiling
-      .integerValue(BigNumber.ROUND_FLOOR)
-      .toNumber()
+    const partyListMemberCount = newRepCeiling.integerValue(
+      BigNumber.ROUND_FLOOR
+    )
     p.setRemainderForSorting(newRepCeiling.minus(partyListMemberCount))
-    newRemainingPartyListSeat -= partyListMemberCount
-    newTotalPartyListMember += partyListMemberCount
-    p.partyListMemberCount = partyListMemberCount
+    newRemainingPartyListSeat = newRemainingPartyListSeat.minus(
+      partyListMemberCount
+    )
+    newTotalPartyListMember = newTotalPartyListMember.plus(partyListMemberCount)
+    p.partyListMemberCount = partyListMemberCount.toNumber()
+    p.partyListMemberCountDecimal = newRepCeiling
     return p
   })
   return {
@@ -200,7 +225,10 @@ const distributeRemainingSeats = (
   clonedParties.sort(compareParty)
   let index = 0
   let viableParties = clonedParties
-  while (newRemainingPartyListSeat > 0 && viableParties.length > 0) {
+  while (
+    newRemainingPartyListSeat.isGreaterThan(0) &&
+    viableParties.length > 0
+  ) {
     if (index === 0) {
       viableParties = viableParties.filter(
         p =>
@@ -212,10 +240,11 @@ const distributeRemainingSeats = (
     const viableParty = viableParties[viablePartiesIndex]
     viableParty.partyListMemberCount += 1
     index += 1
-    newRemainingPartyListSeat -= 1
-    newTotalPartyListMember += 1
+    newRemainingPartyListSeat = newRemainingPartyListSeat.minus(1)
+    newTotalPartyListMember = newTotalPartyListMember.plus(1)
     if (index === viableParties.length) index = 0
   }
+
   const sortedParties = originalIds.map(
     id => clonedParties.filter(party => party.id === id)[0]
   )
@@ -256,8 +285,7 @@ export class Party implements IParty {
   }
 
   isViableForPartyList = (): Boolean => {
-    const repCeilingIntValue = this.getRepCeilingInt().toNumber()
-    return repCeilingIntValue > this.electedMemberCount
+    return true // Disregard ห้ามมีจำนวนส.ส.ที่จัดสรรมากกว่าจำนวนส.ส.พึงมี
   }
 
   setRepCeiling = (ceiling: BigNumber) => {
