@@ -1,6 +1,6 @@
 {
   "name": "thailand-party-list-calculator",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -14,12 +14,12 @@
   "license": "MIT",
   "devDependencies": {
     "@types/assert": "^1.4.2",
-    "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
     "@types/mocha": "^5.2.6",
     "assert": "^1.4.1",
     "mocha": "^6.0.2",
     "ts-node": "^8.0.3",
+    "tsc": "^1.20150623.0",
     "tslint": "^5.14.0",
     "typescript": "^3.3.3333",
     "typings": "^2.1.1"
