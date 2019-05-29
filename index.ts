@@ -111,7 +111,7 @@ const capPartyListCandidate = (parties: Party[]): ICalculateOutput => {
 // § 128(1)
 const getAllValidScores = (parties: IParty[]) =>
   parties.reduce((result, party) => {
-    return result + party.voteCount
+    return result + (party.partyListCandidateCount > 0 ? party.voteCount : 0)
   }, 0)
 
 // § 128(1)
@@ -128,7 +128,10 @@ const mapRepCeiling = (parties: IParty[], score4Rep: BigNumber): Party[] =>
       partyListCandidateCount: party.partyListCandidateCount,
     })
     const vote = new BigNumber(p.voteCount)
-    const repCeiling = vote.dividedBy(score4Rep)
+    const repCeiling =
+      party.partyListCandidateCount > 0
+        ? vote.dividedBy(score4Rep)
+        : new BigNumber(0)
     p.setRepCeiling(repCeiling)
     return p
   })

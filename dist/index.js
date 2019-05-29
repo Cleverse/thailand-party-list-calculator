@@ -73,7 +73,7 @@ var capPartyListCandidate = function (parties) {
 // § 128(1)
 var getAllValidScores = function (parties) {
     return parties.reduce(function (result, party) {
-        return result + party.voteCount;
+        return result + (party.partyListCandidateCount > 0 ? party.voteCount : 0);
     }, 0);
 };
 // § 128(1)
@@ -90,7 +90,9 @@ var mapRepCeiling = function (parties, score4Rep) {
             partyListCandidateCount: party.partyListCandidateCount,
         });
         var vote = new bignumber_js_1.default(p.voteCount);
-        var repCeiling = vote.dividedBy(score4Rep);
+        var repCeiling = party.partyListCandidateCount > 0
+            ? vote.dividedBy(score4Rep)
+            : new bignumber_js_1.default(0);
         p.setRepCeiling(repCeiling);
         return p;
     });
