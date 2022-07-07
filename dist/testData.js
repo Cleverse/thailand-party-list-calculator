@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.arr2 = exports.arr1 = void 0;
 exports.arr1 = [
     {
         id: 'พลังประชารัฐ',

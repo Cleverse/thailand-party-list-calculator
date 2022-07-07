@@ -4,6 +4,7 @@
  * https://www.ect.go.th/ect_th/download/article/article_20180913155522.pdf
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Party = exports.calculatePartyList = exports.REP_LIMIT = exports.PARTY_LIST_LIMIT = void 0;
 var bignumber_js_1 = require("bignumber.js");
 // § 128(4)
 exports.PARTY_LIST_LIMIT = 150;
@@ -197,8 +198,8 @@ var distributeRemainingSeats = function (_a, originalIds) {
 };
 var Party = /** @class */ (function () {
     function Party(_a) {
-        var id = _a.id, electedMemberCount = _a.electedMemberCount, voteCount = _a.voteCount, partyListCandidateCount = _a.partyListCandidateCount;
         var _this = this;
+        var id = _a.id, electedMemberCount = _a.electedMemberCount, voteCount = _a.voteCount, partyListCandidateCount = _a.partyListCandidateCount;
         this.partyListMemberCount = 0;
         this.partyListMemberCountDecimal = new bignumber_js_1.default(0);
         this.representativeCeiling = new bignumber_js_1.default(0);

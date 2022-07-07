@@ -21,8 +21,7 @@
     "ts-node": "^8.0.3",
     "tsc": "^1.20150623.0",
     "tslint": "^5.14.0",
-    "typescript": "^3.3.3333",
-    "typings": "^2.1.1"
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
     "bignumber.js": "^8.1.1"
